@@ -1,3 +1,4 @@
+import 'package:Bakery/providers/products.dart';
 import 'package:Bakery/screens/cart_details.dart';
 import 'package:Bakery/widgets/badge.dart';
 import 'package:Bakery/widgets/appDrawer.dart';
@@ -17,7 +18,24 @@ class ProductOverviewScreen extends StatefulWidget {
 }
 
 class _ProductOverviewScreenState extends State<ProductOverviewScreen> {
+  Future<void> _refreshProducts(BuildContext context) async {
+    await Provider.of<Products>(context, listen: false).fetchAndSetProducts();
+  }
+
   var _showOnlyFav = false;
+  var _isloading = false;
+  @override
+  void initState() {
+    setState(() {
+      _isloading = true;
+    });
+    Provider.of<Products>(context, listen: false).fetchAndSetProducts();
+    setState(() {
+      _isloading = false;
+    });
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -61,6 +79,12 @@ class _ProductOverviewScreenState extends State<ProductOverviewScreen> {
           ],
         ),
         drawer: AppDrawer(),
-        body: ProductsGrid(_showOnlyFav));
+        body: _isloading
+            ? Center(
+                child: CircularProgressIndicator(),
+              )
+            : RefreshIndicator(
+                onRefresh: () => _refreshProducts(context),
+                child: ProductsGrid(_showOnlyFav)));
   }
 }

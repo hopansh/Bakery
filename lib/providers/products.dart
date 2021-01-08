@@ -1,42 +1,41 @@
+import 'dart:convert';
+import 'dart:io';
 import './product.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 class Products with ChangeNotifier {
   List<Product> _items = [
-    Product(
-      id: 'p1',
-      title: 'Donuts',
-      description: 'A tooty frooty Donut',
-      price: 130,
-      imageUrl:
-          'https://images.pexels.com/photos/3338681/pexels-photo-3338681.jpeg',
-    ),
-    Product(
-      id: 'p2',
-      title: 'Pastry',
-      description: 'A Chocolate pastry',
-      price: 40,
-      imageUrl:
-          'https://images.pexels.com/photos/1854652/pexels-photo-1854652.jpeg',
-    ),
-    Product(
-      id: 'p3',
-      title: 'Pizza',
-      description: 'Hot and spicy: Peper Paneer Pizza with extra cheese',
-      price: 120,
-      imageUrl:
-          'https://images.pexels.com/photos/1260968/pexels-photo-1260968.jpeg',
-    ),
-    Product(
-      id: 'p4',
-      title: 'Fries',
-      description: 'Crispy Aalu fries',
-      price: 70,
-      imageUrl:
-          'https://images.pexels.com/photos/1583884/pexels-photo-1583884.jpeg',
-    ),
+    // Product(
+    //   id: 'p1',
+    //   title: 'Cake',
+    //   description: 'A tooty frooty Cake',
+    //   price: 130,
+    //   imageUrl: 'https://hopansh.ga/cake.jpg',
+    // ),
+    // Product(
+    //   id: 'p2',
+    //   title: 'Pastry',
+    //   description: 'A Chocolate pastry',
+    //   price: 40,
+    //   imageUrl: 'https://hopansh.ga/pastry.jpg',
+    // ),
+    // Product(
+    //   id: 'p3',
+    //   title: 'Pizza',
+    //   description: 'Hot and spicy: Peper Paneer Pizza with extra cheese',
+    //   price: 120,
+    //   imageUrl: 'https://hopansh.ga/pizza.jpg',
+    // ),
+    // Product(
+    //   id: 'p4',
+    //   title: 'Burger',
+    //   description: 'Crispy Aalu Burger',
+    //   price: 70,
+    //   imageUrl: 'https://hopansh.ga/burger.jpg',
+    // ),
   ];
-  var _showFavOnly = false;
+  // var _showFavOnly = false;
   List<Product> get items {
     // if (_showFavOnly) {
     //   return _items.where((element) => element.isFavorite).toList();
@@ -61,21 +60,71 @@ class Products with ChangeNotifier {
     return _items.firstWhere((element) => id == element.id);
   }
 
-  void addProduct(Product product) {
-    final newproduct = Product(
+  Future<void> fetchAndSetProducts() async {
+    const url =
+        'https://bakery-d39d9-default-rtdb.firebaseio.com/products.json';
+    try {
+      final response = await http.get(url);
+      var data = json.decode(response.body) as Map<String, dynamic>;
+      final List<Product> loadedProducts = [];
+      data.forEach((prodId, recvData) {
+        loadedProducts.insert(
+            0,
+            Product(
+                id: prodId,
+                title: recvData['title'],
+                description: recvData['description'],
+                price: recvData['price'],
+                isFavorite: recvData['isFavorite'],
+                imageUrl: recvData['imageUrl']));
+      });
+      _items = loadedProducts;
+      notifyListeners();
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  Future<void> addProduct(Product product) async {
+    const url =
+        'https://bakery-d39d9-default-rtdb.firebaseio.com/products.json';
+    try {
+      final response = await http.post(url,
+          body: json.encode({
+            'title': product.title,
+            'description': product.description,
+            'imageUrl': product.imageUrl,
+            'price': product.price,
+            'isFavorite': product.isFavorite,
+          }));
+      final newproduct = Product(
         title: product.title,
         description: product.description,
         imageUrl: product.imageUrl,
         price: product.price,
-        id: DateTime.now().toString());
-    _items.insert(0, newproduct);
-    // _items.add(value);
-    notifyListeners();
+        id: json.decode(response.body)['name'],
+      );
+      _items.insert(0, newproduct);
+      // _items.add(value);
+      notifyListeners();
+    } catch (error) {
+      print(error);
+      throw error;
+    }
   }
 
-  void updateProduct(String id, Product newProduct) {
+  Future<void> updateProduct(String id, Product newProduct) async {
     final prodIndex = _items.indexWhere((element) => element.id == id);
     if (prodIndex >= 0) {
+      final url =
+          'https://bakery-d39d9-default-rtdb.firebaseio.com/products/$id.json';
+      await http.patch(url,
+          body: json.encode({
+            'title': newProduct.title,
+            'description': newProduct.description,
+            'imageUrl': newProduct.imageUrl,
+            'price': newProduct.price,
+          }));
       _items[prodIndex] = newProduct;
       notifyListeners();
     } else {
@@ -84,7 +133,20 @@ class Products with ChangeNotifier {
   }
 
   void deleteProduct(String id) {
-    _items.removeWhere((element) => element.id == id);
+    final url =
+        'https://bakery-d39d9-default-rtdb.firebaseio.com/products/$id.json';
+    final prodInd = _items.indexWhere((element) => element.id == id);
+    var existingProd = _items[prodInd];
+    _items.removeAt(prodInd);
     notifyListeners();
+    http.delete(url).then((response) {
+      if (response.statusCode >= 400) {
+        throw HttpException("Couldn't delete product");
+      }
+      existingProd = null;
+    }).catchError((error) {
+      _items.insert(prodInd, existingProd);
+      notifyListeners();
+    });
   }
 }
