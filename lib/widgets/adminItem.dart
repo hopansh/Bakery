@@ -1,4 +1,6 @@
+import 'package:Bakery/providers/products.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class AdminItem extends StatelessWidget {
   final String id;
@@ -26,7 +28,10 @@ class AdminItem extends StatelessWidget {
               ),
               IconButton(
                 icon: Icon(Icons.delete),
-                onPressed: () {},
+                onPressed: () {
+                  Provider.of<Products>(context, listen: false)
+                      .deleteProduct(id);
+                },
                 color: Theme.of(context).errorColor,
               ),
             ],

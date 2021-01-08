@@ -77,7 +77,13 @@ class _EditProductState extends State<EditProduct> {
       return;
     }
     _form.currentState.save();
-    Provider.of<Products>(context, listen: false).addProduct(_editedProduct);
+    if (_editedProduct.id != null) {
+      Provider.of<Products>(context, listen: false)
+          .updateProduct(_editedProduct.id, _editedProduct);
+    } else {
+      Provider.of<Products>(context, listen: false).addProduct(_editedProduct);
+    }
+
     Navigator.of(context).pop();
   }
 
@@ -109,7 +115,8 @@ class _EditProductState extends State<EditProduct> {
                   textInputAction: TextInputAction.next,
                   onSaved: (value) {
                     _editedProduct = Product(
-                        id: null,
+                        id: _editedProduct.id,
+                        isFavorite: _editedProduct.isFavorite,
                         title: value,
                         description: _editedProduct.description,
                         price: _editedProduct.price,
@@ -129,7 +136,8 @@ class _EditProductState extends State<EditProduct> {
                   keyboardType: TextInputType.number,
                   onSaved: (value) {
                     _editedProduct = Product(
-                        id: null,
+                        id: _editedProduct.id,
+                        isFavorite: _editedProduct.isFavorite,
                         title: _editedProduct.title,
                         description: _editedProduct.description,
                         price: int.parse(value),
@@ -155,6 +163,7 @@ class _EditProductState extends State<EditProduct> {
                   onSaved: (value) {
                     _editedProduct = Product(
                         id: _editedProduct.id,
+                        isFavorite: _editedProduct.isFavorite,
                         title: _editedProduct.title,
                         description: value,
                         price: _editedProduct.price,
@@ -199,6 +208,7 @@ class _EditProductState extends State<EditProduct> {
                         onSaved: (value) {
                           _editedProduct = Product(
                               id: _editedProduct.id,
+                              isFavorite: _editedProduct.isFavorite,
                               title: _editedProduct.title,
                               description: _editedProduct.description,
                               price: _editedProduct.price,

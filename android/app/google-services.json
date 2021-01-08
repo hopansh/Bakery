@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "1040049984056",
+    "project_id": "bakery-d39d9",
+    "storage_bucket": "bakery-d39d9.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1040049984056:android:9b225ff8fdc9bc1dc38ccd",
+        "android_client_info": {
+          "package_name": "com.pluto.Bakery"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1040049984056-gtj1k11sup5gpl97dhan2h6kmvpr7qol.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.pluto.Bakery",
+            "certificate_hash": "008fda2635a41d01abcc561f05aa0d188d900576"
+          }
+        },
+        {
+          "client_id": "1040049984056-1s3duhnslgbcp6vjgruk3l238p2r9t29.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBxPjdhL8BvOsjNdvYAo-sRqYyQOCGqJS8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1040049984056-1s3duhnslgbcp6vjgruk3l238p2r9t29.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
