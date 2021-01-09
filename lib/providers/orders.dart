@@ -23,8 +23,12 @@ class Orders with ChangeNotifier {
     return [..._orders];
   }
 
+  final String authToken;
+  Orders(this.authToken, this._orders);
+
   Future<void> addOrder(List<CartItem> cartProducts, double total) async {
-    const url = 'https://bakery-d39d9-default-rtdb.firebaseio.com/orders.json';
+    final url =
+        'https://bakery-d39d9-default-rtdb.firebaseio.com/orders.json?auth=$authToken';
     final timestamp = DateTime.now();
     final response = await http.post(url,
         body: json.encode({
@@ -50,7 +54,8 @@ class Orders with ChangeNotifier {
   }
 
   Future<void> fetchSetOrders() async {
-    const url = 'https://bakery-d39d9-default-rtdb.firebaseio.com/orders.json';
+    final url =
+        'https://bakery-d39d9-default-rtdb.firebaseio.com/orders.json?auth=$authToken';
     final response = await http.get(url);
     final List<OrderItem> loadedData = [];
     final extractedData = json.decode(response.body) as Map<String, dynamic>;

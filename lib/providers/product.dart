@@ -9,7 +9,7 @@ class Product with ChangeNotifier {
   final int price;
   final String imageUrl;
   bool isFavorite;
-
+  // final String authToken;
   Product({
     @required this.id,
     @required this.title,
@@ -18,9 +18,10 @@ class Product with ChangeNotifier {
     @required this.imageUrl,
     this.isFavorite = false,
   });
-  void toggleFavStatus() async {
+
+  void toggleFavStatus(String authToken) async {
     final url =
-        'https://bakery-d39d9-default-rtdb.firebaseio.com/products/$id.json';
+        'https://bakery-d39d9-default-rtdb.firebaseio.com/products/$id.json?auth=$authToken';
     final oldStatus = isFavorite;
     isFavorite = !isFavorite;
     notifyListeners();

@@ -101,23 +101,6 @@ class _AuthCardState extends State<AuthCard> {
   };
   var _isLoading = false;
   final _passwordController = TextEditingController();
-  void _showErrorDialog(String message) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text('An Error Occurred!'),
-        content: Text(message),
-        actions: <Widget>[
-          FlatButton(
-            child: Text('Okay'),
-            onPressed: () {
-              Navigator.of(ctx).pop();
-            },
-          )
-        ],
-      ),
-    );
-  }
 
   Future<void> _submit() async {
     if (!_formKey.currentState.validate()) {
@@ -155,11 +138,11 @@ class _AuthCardState extends State<AuthCard> {
       } else if (error.toString().contains('INVALID_PASSWORD')) {
         errorMessage = 'Invalid password.';
       }
-      _showErrorDialog(errorMessage);
+      Scaffold.of(context).showSnackBar(SnackBar(content: Text(errorMessage)));
     } catch (error) {
       const errorMessage =
           'Could not authenticate you. Please try again later.';
-      _showErrorDialog(errorMessage);
+      Scaffold.of(context).showSnackBar(SnackBar(content: Text(errorMessage)));
     }
 
     setState(() {
