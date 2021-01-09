@@ -67,6 +67,9 @@ class Products with ChangeNotifier {
       final response = await http.get(url);
       var data = json.decode(response.body) as Map<String, dynamic>;
       final List<Product> loadedProducts = [];
+      if (data == null) {
+        return;
+      }
       data.forEach((prodId, recvData) {
         loadedProducts.insert(
             0,
@@ -132,21 +135,19 @@ class Products with ChangeNotifier {
     }
   }
 
-  void deleteProduct(String id) {
+  Future<void> deleteProduct(String id) async {
     final url =
         'https://bakery-d39d9-default-rtdb.firebaseio.com/products/$id.json';
     final prodInd = _items.indexWhere((element) => element.id == id);
     var existingProd = _items[prodInd];
     _items.removeAt(prodInd);
     notifyListeners();
-    http.delete(url).then((response) {
-      if (response.statusCode >= 400) {
-        throw HttpException("Couldn't delete product");
-      }
-      existingProd = null;
-    }).catchError((error) {
+    final response = await http.delete(url);
+    if (response.statusCode >= 400) {
       _items.insert(prodInd, existingProd);
       notifyListeners();
-    });
+      throw HttpException("Couldn't delete product");
+    }
+    existingProd = null;
   }
 }

@@ -36,10 +36,35 @@ class CartDetails extends StatelessWidget {
             trailing: Text("Rs." + cart.totalAmount.toStringAsFixed(2),
                 style: TextStyle(fontSize: 20)),
           ),
-          ListTile(
-            contentPadding: EdgeInsets.only(bottom: 10, right: 10),
-            tileColor: Colors.teal.withOpacity(0.1),
-            trailing: ActionChip(
+          OrderButton(cart: cart),
+        ],
+      ),
+    );
+  }
+}
+
+class OrderButton extends StatefulWidget {
+  const OrderButton({
+    Key key,
+    @required this.cart,
+  }) : super(key: key);
+
+  final Cart cart;
+
+  @override
+  _OrderButtonState createState() => _OrderButtonState();
+}
+
+class _OrderButtonState extends State<OrderButton> {
+  var _isLoading = false;
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      contentPadding: EdgeInsets.only(bottom: 10, right: 10, left: 10),
+      tileColor: Colors.teal.withOpacity(0.1),
+      trailing: _isLoading
+          ? CircularProgressIndicator()
+          : ActionChip(
               elevation: 5,
               padding: EdgeInsets.all(10),
               label: Text("Place Order",
@@ -48,15 +73,21 @@ class CartDetails extends StatelessWidget {
                       fontSize: 18,
                       fontWeight: FontWeight.bold)),
               backgroundColor: Colors.orange,
-              onPressed: () {
-                Provider.of<Orders>(context, listen: false)
-                    .addOrder(cart.items.values.toList(), cart.totalAmount);
-                cart.clear();
-              },
+              onPressed: (widget.cart.totalAmount <= 0 || _isLoading == true)
+                  ? () {}
+                  : () async {
+                      setState(() {
+                        _isLoading = true;
+                      });
+                      await Provider.of<Orders>(context, listen: false)
+                          .addOrder(widget.cart.items.values.toList(),
+                              widget.cart.totalAmount);
+                      setState(() {
+                        _isLoading = false;
+                      });
+                      widget.cart.clear();
+                    },
             ),
-          ),
-        ],
-      ),
     );
   }
 }
