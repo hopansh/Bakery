@@ -1,6 +1,4 @@
 import 'dart:math';
-
-import '../widgets/cartItemTile.dart';
 import 'package:Bakery/providers/orders.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';

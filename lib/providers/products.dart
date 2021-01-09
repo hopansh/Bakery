@@ -84,7 +84,7 @@ class Products with ChangeNotifier {
       _items = loadedProducts;
       notifyListeners();
     } catch (error) {
-      throw error;
+      // throw error;
     }
   }
 

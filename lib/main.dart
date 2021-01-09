@@ -1,9 +1,10 @@
+import 'package:Bakery/providers/auth.dart';
 import 'package:Bakery/providers/orders.dart';
+import 'package:Bakery/screens/auth_screen.dart';
 import 'package:Bakery/screens/cart_details.dart';
 import 'package:Bakery/screens/editingProduct.dart';
 import 'package:Bakery/screens/orders_details.dart';
 import 'package:Bakery/screens/product_details.dart';
-import 'package:Bakery/screens/product_overview.dart';
 import 'package:Bakery/screens/userProduct.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -25,6 +26,7 @@ class MyApp extends StatelessWidget {
         ),
         ChangeNotifierProvider.value(value: Cart()),
         ChangeNotifierProvider.value(value: Orders()),
+        ChangeNotifierProvider.value(value: Auth()),
       ],
       // create: (ctx) => Products(),
       child: MaterialApp(
@@ -36,13 +38,14 @@ class MyApp extends StatelessWidget {
           visualDensity: VisualDensity.adaptivePlatformDensity,
         ),
         debugShowCheckedModeBanner: false,
-        home: ProductOverviewScreen(),
+        home: AuthScreen(),
         routes: {
           ProductDetails.routeName: (ctx) => ProductDetails(),
           CartDetails.routeName: (ctx) => CartDetails(),
           OrderDetails.routeName: (ctx) => OrderDetails(),
           UserProduct.routeName: (ctx) => UserProduct(),
           EditProduct.routeName: (ctx) => EditProduct(),
+          AuthScreen.routeName: (ctx) => AuthScreen(),
         },
       ),
     );
