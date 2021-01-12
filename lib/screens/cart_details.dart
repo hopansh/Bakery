@@ -1,3 +1,4 @@
+import 'package:Bakery/screens/orders_details.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/cart.dart' show Cart;
@@ -86,6 +87,8 @@ class _OrderButtonState extends State<OrderButton> {
                         _isLoading = false;
                       });
                       widget.cart.clear();
+                      Navigator.of(context)
+                          .pushReplacementNamed(OrderDetails.routeName);
                     },
             ),
     );

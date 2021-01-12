@@ -6,6 +6,7 @@ import 'package:Bakery/screens/editingProduct.dart';
 import 'package:Bakery/screens/orders_details.dart';
 import 'package:Bakery/screens/product_details.dart';
 import 'package:Bakery/screens/product_overview.dart';
+import 'package:Bakery/screens/splash_screen.dart';
 import 'package:Bakery/screens/userProduct.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -24,14 +25,18 @@ class MyApp extends StatelessWidget {
         providers: [
           ChangeNotifierProvider.value(value: Auth()),
           ChangeNotifierProxyProvider<Auth, Products>(
-            create: (_) => Products(null, []),
-            update: (ctx, auth, previousProducts) => Products(auth.token,
+            create: (_) => Products(null, null, []),
+            update: (ctx, auth, previousProducts) => Products(
+                auth.token,
+                auth.userId,
                 previousProducts.items == null ? [] : previousProducts.items),
           ),
           ChangeNotifierProxyProvider<Auth, Orders>(
-            create: (_) => Orders(null, []),
-            update: (ctx, auth, previousOrders) => Orders(auth.token,
-                previousOrders == null ? [] : previousOrders.orders),
+            create: (_) => Orders(null, [], null),
+            update: (ctx, auth, previousOrders) => Orders(
+                auth.token,
+                previousOrders == null ? [] : previousOrders.orders,
+                auth.userId),
           ),
           ChangeNotifierProvider.value(value: Cart()),
         ],
@@ -46,7 +51,15 @@ class MyApp extends StatelessWidget {
               visualDensity: VisualDensity.adaptivePlatformDensity,
             ),
             debugShowCheckedModeBanner: false,
-            home: auth.isAuth ? ProductOverviewScreen() : AuthScreen(),
+            home: auth.isAuth
+                ? ProductOverviewScreen()
+                : FutureBuilder(
+                    future: auth.tryAutoLogin(),
+                    builder: (ctx, authresult) =>
+                        authresult.connectionState == ConnectionState.waiting
+                            ? SplashScreen()
+                            : AuthScreen(),
+                  ),
             routes: {
               ProductDetails.routeName: (ctx) => ProductDetails(),
               CartDetails.routeName: (ctx) => CartDetails(),

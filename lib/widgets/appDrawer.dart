@@ -1,4 +1,6 @@
+import 'package:Bakery/providers/auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class AppDrawer extends StatelessWidget {
   const AppDrawer({Key key}) : super(key: key);
@@ -29,9 +31,18 @@ class AppDrawer extends StatelessWidget {
         Divider(),
         ListTile(
             leading: Icon(Icons.person),
-            title: Text("Admin"),
+            title: Text("Your Products"),
             onTap: () {
               Navigator.of(context).pushReplacementNamed('/admin');
+            }),
+        Divider(),
+        ListTile(
+            leading: Icon(Icons.call_missed),
+            title: Text("Logout"),
+            onTap: () {
+              Navigator.of(context).pop();
+              Navigator.of(context).pushReplacementNamed('/');
+              Provider.of<Auth>(context, listen: false).logout();
             })
       ],
     ));

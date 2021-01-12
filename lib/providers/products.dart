@@ -60,36 +60,9 @@ class Products with ChangeNotifier {
     return _items.firstWhere((element) => id == element.id);
   }
 
-  Future<void> fetchAndSetProducts() async {
-    final url =
-        'https://bakery-d39d9-default-rtdb.firebaseio.com/products.json?auth=$authToken';
-    try {
-      final response = await http.get(url);
-      var data = json.decode(response.body) as Map<String, dynamic>;
-      final List<Product> loadedProducts = [];
-      if (data == null) {
-        return;
-      }
-      data.forEach((prodId, recvData) {
-        loadedProducts.insert(
-            0,
-            Product(
-                id: prodId,
-                title: recvData['title'],
-                description: recvData['description'],
-                price: recvData['price'],
-                isFavorite: recvData['isFavorite'],
-                imageUrl: recvData['imageUrl']));
-      });
-      _items = loadedProducts;
-      notifyListeners();
-    } catch (error) {
-      // throw error;
-    }
-  }
-
   final String authToken;
-  Products(this.authToken, this._items);
+  final String userId;
+  Products(this.authToken, this.userId, this._items);
   Future<void> addProduct(Product product) async {
     final url =
         'https://bakery-d39d9-default-rtdb.firebaseio.com/products.json?auth=$authToken';
@@ -100,7 +73,7 @@ class Products with ChangeNotifier {
             'description': product.description,
             'imageUrl': product.imageUrl,
             'price': product.price,
-            'isFavorite': product.isFavorite,
+            'creatorId': userId,
           }));
       final newproduct = Product(
         title: product.title,
@@ -114,8 +87,41 @@ class Products with ChangeNotifier {
       // _items.add(value);
       notifyListeners();
     } catch (error) {
-      print(error);
       throw error;
+    }
+  }
+
+  Future<void> fetchAndSetProducts([bool filterByUser = false]) async {
+    var url = filterByUser
+        ? 'https://bakery-d39d9-default-rtdb.firebaseio.com/products.json?auth=$authToken&orderBy="creatorId"&equalTo="$userId"'
+        : 'https://bakery-d39d9-default-rtdb.firebaseio.com/products.json?auth=$authToken';
+
+    try {
+      final response = await http.get(url);
+      var data = json.decode(response.body) as Map<String, dynamic>;
+      final List<Product> loadedProducts = [];
+      if (data == null) {
+        return;
+      }
+      url =
+          'https://bakery-d39d9-default-rtdb.firebaseio.com/userFavorites/$userId.json?auth=$authToken';
+      final favResponse = await http.get(url);
+      final favData = json.decode(favResponse.body);
+      data.forEach((prodId, recvData) {
+        loadedProducts.insert(
+            0,
+            Product(
+                id: prodId,
+                title: recvData['title'],
+                description: recvData['description'],
+                price: recvData['price'],
+                isFavorite: favData == null ? false : favData[prodId] ?? false,
+                imageUrl: recvData['imageUrl']));
+      });
+      _items = loadedProducts;
+      notifyListeners();
+    } catch (error) {
+      // throw error;
     }
   }
 

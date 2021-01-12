@@ -1,5 +1,5 @@
+import 'package:Bakery/providers/auth.dart';
 import 'package:Bakery/providers/cart.dart';
-import 'package:Bakery/providers/products.dart';
 import 'package:Bakery/screens/product_details.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -10,7 +10,7 @@ class ProductItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final product = Provider.of<Product>(context, listen: false);
     final cart = Provider.of<Cart>(context, listen: false);
-    final authData = Provider.of<Products>(context, listen: false).authToken;
+    final authData = Provider.of<Auth>(context, listen: false);
     return ClipRRect(
       borderRadius: BorderRadius.circular(10),
       child: GridTile(
@@ -19,9 +19,13 @@ class ProductItem extends StatelessWidget {
               Navigator.of(context)
                   .pushNamed(ProductDetails.routeName, arguments: product.id);
             },
-            child: Image.network(
-              product.imageUrl,
-              fit: BoxFit.cover,
+            child: Hero(
+              tag: product.id,
+              child: FadeInImage(
+                placeholder: AssetImage("assets/images/food.gif"),
+                image: NetworkImage(product.imageUrl),
+                fit: BoxFit.cover,
+              ),
             ),
           ),
           footer: Consumer<Product>(
@@ -35,7 +39,7 @@ class ProductItem extends StatelessWidget {
                         )
                       : Icon(Icons.favorite_border),
                   onPressed: () {
-                    product.toggleFavStatus(authData);
+                    product.toggleFavStatus(authData.token, authData.userId);
                   },
                 ),
                 title: Text(
